@@ -9,8 +9,14 @@ import traceback
 from joblib import Parallel, delayed
 import multiprocessing
 
+def get_indices(passwd, alphabet):
+    # Get indices of a password; for testing use
+    return [alphabet.index(i) for i in passwd]
+
 def generate_all(passwd_len, alphabet, slice_start, slice_end):
     indices = [slice_start] + [0]*(passwd_len-1)
+    # Uncomment and replace password to prove with test file
+    # indices = get_indices('59mn9wD%39sd!GYn', alphabet)
     alphabet_len = len(alphabet) # Hopefully shave off microseconds
 
     while True:
@@ -26,6 +32,9 @@ def generate_all(passwd_len, alphabet, slice_start, slice_end):
             # Reset to first element in alphabet
             indices[i] = 0
 
+class PasswordFoundException(Exception):
+    pass
+
 def attempt(w, pw):
     # print(pw)
     # sys.stdout.write("\r")
@@ -40,10 +49,13 @@ def attempt(w, pw):
         return ""
     try:
         o = decode_keystore_json(w,pw)
-        print(o)
+        # print(o)
         # print (pw)q
+        print "Password is:  '%s'" % pw
+        # raise PasswordFoundException(
+        #     """\n\nYour password is:\n%s""" % o)
         raise PasswordFoundException(
-            """\n\nYour password is:\n%s""" % o)
+            """\n\nYour password is:\n'%s'""" % pw)
     except ValueError as e:
         # print(e)
         return ""
@@ -98,9 +110,6 @@ def __main__():
         # print("\n")
     except Exception, e:
         traceback.print_exc()
-        while True:
-            sys.stdout.write('\a')
-            sys.stdout.flush()
 
 
 if __name__ == '__main__':
